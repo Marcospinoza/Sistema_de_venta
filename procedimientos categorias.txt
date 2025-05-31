@@ -1,0 +1,47 @@
+DELIMITER $$
+
+-- Crear categoría
+CREATE PROCEDURE sp_insertar_categoria(
+  IN p_descripcion VARCHAR(100)
+)
+BEGIN
+  INSERT INTO categorias (descripcion)
+  VALUES (p_descripcion);
+END$$
+
+-- Listar categorías
+CREATE PROCEDURE sp_listar_categorias()
+BEGIN
+  SELECT * FROM categorias;
+END$$
+
+-- Obtener categoría por ID
+CREATE PROCEDURE sp_obtener_categoria(
+  IN p_id_categoria INT
+)
+BEGIN
+  SELECT * FROM categorias
+  WHERE id_categoria = p_id_categoria;
+END$$
+
+-- Actualizar categoría
+CREATE PROCEDURE sp_actualizar_categoria(
+  IN p_id_categoria INT,
+  IN p_descripcion VARCHAR(100)
+)
+BEGIN
+  UPDATE categorias
+  SET descripcion = p_descripcion
+  WHERE id_categoria = p_id_categoria;
+END$$
+
+-- Eliminar categoría
+CREATE PROCEDURE sp_eliminar_categoria(
+  IN p_id_categoria INT
+)
+BEGIN
+  DELETE FROM categorias
+  WHERE id_categoria = p_id_categoria;
+END$$
+
+DELIMITER ;

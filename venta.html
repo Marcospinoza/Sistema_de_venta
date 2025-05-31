@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar Venta</title>
+  <style>
+    /* Reset básico y tipografía */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef2f7;
+      padding: 30px 15px;
+      margin: 0;
+      color: #333;
+    }
+
+    h2, h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    label {
+      font-weight: 600;
+      margin-right: 10px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: 1.8px solid #ccc;
+      border-radius: 6px;
+      width: 250px;
+      transition: border-color 0.3s ease;
+      margin-bottom: 15px;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-left: 10px;
+      box-shadow: 0 4px 8px rgb(52 152 219 / 0.3);
+      font-weight: 600;
+    }
+    button:hover {
+      background-color: #1d6fa5;
+      box-shadow: 0 6px 12px rgb(29 111 165 / 0.5);
+    }
+
+    /* Layout de formulario cliente */
+    #nuevoClienteDiv {
+      background: #fff;
+      padding: 20px 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgb(0 0 0 / 0.1);
+      margin-top: 20px;
+      max-width: 600px;
+    }
+
+    /* Tabla carrito */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgb(0 0 0 / 0.1);
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 15px 20px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 0.95rem;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: 700;
+    }
+    tbody tr:hover {
+      background-color: #f1f9ff;
+    }
+
+    /* Botón eliminar en tabla */
+    tbody button {
+      background-color: #e74c3c;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      box-shadow: none;
+      margin: 0;
+    }
+    tbody button:hover {
+      background-color: #c0392b;
+    }
+
+    /* Botón principal confirmar */
+    .btn-confirmar {
+      margin-top: 25px;
+      width: 100%;
+      max-width: 300px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+    }
+
+    /* Loader */
+    #loader {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #3498db;
+    }
+
+    /* Contenedor para input + botón buscar */
+    #cliente-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      max-width: 600px;
+      margin-bottom: 10px;
+    }
+
+    /* Selector cliente */
+    #clienteLista {
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 1.8px solid #ccc;
+      font-size: 1rem;
+      min-width: 260px;
+      margin-left: 10px;
+    }
+
+    /* Botón volver al dashboard */
+    #btn-dashboard {
+      background-color: #2ecc71;
+      margin-bottom: 30px;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgb(46 204 113 / 0.4);
+    }
+    #btn-dashboard:hover {
+      background-color: #27ae60;
+      box-shadow: 0 8px 24px rgb(39 174 96 / 0.6);
+    }
+
+  </style>
+</head>
+<body>
+
+  <button id="btn-dashboard" onclick="window.location.href='dashboard.php'">← Volver al Dashboard</button>
+
+  <h2>Registrar Venta</h2>
+
+  <div id="cliente-container">
+    <label for="cliente">Nombre del cliente:</label>
+    <input type="text" id="cliente" placeholder="Ej: Juan Pérez" />
+    <button onclick="buscarCliente()">Buscar Cliente</button>
+    <select id="clienteLista" style="display:none;"></select>
+  </div>
+
+  <!-- FORMULARIO NUEVO CLIENTE -->
+  <div id="nuevoClienteDiv" style="display:none;">
+    <h3>Registrar nuevo cliente</h3>
+    <input type="text" id="nuevoNombres" placeholder="Nombres" />
+    <input type="text" id="nuevoApellidos" placeholder="Apellidos" />
+    <input type="text" id="nuevoDireccion" placeholder="Dirección" />
+    <input type="text" id="nuevoTelefono" placeholder="Teléfono" />
+    <button onclick="registrarNuevoCliente()">Registrar Cliente</button>
+  </div>
+
+  <h3>Agregar Producto</h3>
+  <!-- Dentro del bloque donde está el selector de productos -->
+<div style="display:flex; flex-direction: column; gap:10px; max-width: 600px;">
+
+  <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+    <select id="producto" style="flex: 1;" onchange="mostrarInfoProducto()">
+      <!-- Productos se cargan dinámicamente -->
+    </select>
+    <input type="number" id="cantidad" placeholder="Cantidad" style="width: 120px;" min="1" />
+    <button onclick="agregarAlCarrito()">Agregar</button>
+  </div>
+
+  <!-- NUEVOS elementos para mostrar precio y stock -->
+  <p id="infoPrecio" style="margin: 0 0 5px 0; font-weight: 600;"></p>
+  <p id="infoStock" style="margin: 0; font-weight: 600;"></p>
+</div>
+
+
+  <h3>Carrito de Venta</h3>
+  <table id="carrito">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio (S/)</th>
+        <th>Subtotal (S/)</th>
+        <th>Eliminar</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="btn btn-confirmar" onclick="guardarVenta()">Confirmar Venta</button>
+
+  <div id="loader">
+    Procesando...
+  </div>
+
+  <script>
+    let carrito = [];
+    let productosData = {};
+
+    // Cargar productos al iniciar
+    async function cargarProductos() {
+      const res = await fetch('productos.php'); // archivo que devuelve JSON con productos
+      const productos = await res.json();
+      const select = document.getElementById('producto');
+      productos.forEach(p => {
+        productosData[p.id_producto] = p;
+        const option = document.createElement('option');
+        option.value = p.id_producto;
+        option.textContent = p.descripcion;
+        option.setAttribute('data-precio', p.precio);
+        select.appendChild(option);
+      });
+    }
+    function mostrarInfoProducto() {
+  const select = document.getElementById('producto');
+  const id = select.value;
+  const producto = productosData[id];
+  if (producto) {
+    document.getElementById('infoPrecio').textContent = `Precio: S/ ${producto.precio}`;
+    document.getElementById('infoStock').textContent = `Stock disponible: ${producto.stock}`;
+  }
+}
+
+function agregarAlCarrito() {
+  const select = document.getElementById('producto');
+  const id = select.value;
+  const nombre = select.options[select.selectedIndex].text;
+  const producto = productosData[id];
+  const precio = parseFloat(producto.precio);
+  const stock = parseInt(producto.stock);
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+
+  if (!cantidad || cantidad <= 0) {
+    alert("Cantidad inválida.");
+    return;
+  }
+
+  // Validación de stock
+  if (cantidad > stock) {
+    alert(`No hay suficiente stock. Stock disponible: ${stock}`);
+    return;
+  }
+
+  carrito.push({ id, nombre, cantidad, precio });
+  renderizarCarrito();
+
+  // Limpiar campos
+  document.getElementById('cantidad').value = '';
+}
+
+
+    cargarProductos();
+
+    function agregarAlCarrito() {
+      const select = document.getElementById('producto');
+      const id = select.value;
+      const nombre = select.options[select.selectedIndex].text;
+      const precio = parseFloat(select.options[select.selectedIndex].getAttribute('data-precio'));
+      const cantidad = parseInt(document.getElementById('cantidad').value);
+
+      if (!cantidad || cantidad <= 0) return alert("Cantidad inválida.");
+
+      carrito.push({ id, nombre, cantidad, precio });
+      renderizarCarrito();
+
+      // Limpiar cantidad
+      document.getElementById('cantidad').value = '';
+    }
+
+    function renderizarCarrito() {
+      const tbody = document.querySelector('#carrito tbody');
+      tbody.innerHTML = '';
+      carrito.forEach((item, i) => {
+        const subtotal = item.cantidad * item.precio;
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.nombre}</td>
+            <td>${item.cantidad}</td>
+            <td>${item.precio.toFixed(2)}</td>
+            <td>${subtotal.toFixed(2)}</td>
+            <td><button onclick="eliminarDelCarrito(${i})">Eliminar</button></td>
+          </tr>
+        `;
+      });
+    }
+
+    function eliminarDelCarrito(i) {
+      carrito.splice(i, 1);
+      renderizarCarrito();
+    }
+
+    async function buscarCliente() {
+      const nombre = document.getElementById('cliente').value.trim();
+      if (!nombre) {
+        alert("Por favor ingrese un nombre para buscar.");
+        return;
+      }
+      const res = await fetch(`buscar_cliente.php?q=${encodeURIComponent(nombre)}`);
+      const clientes = await res.json();
+      const lista = document.getElementById('clienteLista');
+      const nuevoDiv = document.getElementById('nuevoClienteDiv');
+
+      lista.innerHTML = '';
+
+      if (clientes.length === 0) {
+        lista.style.display = 'none';
+        nuevoDiv.style.display = 'block';
+      } else {
+        clientes.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.id_cliente;
+          option.textContent = `${c.nombres} ${c.apellidos}`;
+          lista.appendChild(option);
+        });
+        lista.style.display = 'inline-block';
+        nuevoDiv.style.display = 'none';
+      }
+    }
+
+    async function guardarVenta() {
+      const loader = document.getElementById('loader');
+      loader.style.display = 'flex';  // Mostrar loader
+
+      const clienteLista = document.getElementById('clienteLista');
+      const id_cliente = clienteLista.value;
+
+      if (!id_cliente || carrito.length === 0) {
+        loader.style.display = 'none'; // Ocultar loader si hay error
+        alert("Seleccione un cliente y agregue productos.");
+        return;
+      }
+
+      const datos = new FormData();
+      datos.append('id_cliente', id_cliente);
+      datos.append('productos', JSON.stringify(carrito.map(p => ({
+        id: p.id,
+        cantidad: p.cantidad
+      }))));
+
+      try {
+        const res = await fetch('venta.php', {
+          method: 'POST',
+          body: datos
+        });
+
+        if (!res.ok) {
+          loader.style.display = 'none';
+          const error = await res.json();
+          alert("Error: " + error.error);
+          return;
+        }
+
+        const blob = await res.blob();
+
+        // Crear URL temporal para el PDF
+        const url = URL.createObjectURL(blob);
+
+        // Crear un enlace invisible para descargar el archivo
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'factura_venta.pdf'; // Nombre del archivo que se descarga
+        document.body.appendChild(a);
+        a.click();
+
+        // Limpieza
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        carrito = [];
+        renderizarCarrito();
+
+        alert("Venta realizada y factura descargada.");
+      } catch (err) {
+        alert("Error en la venta: " + err.message);
+      } finally {
+        loader.style.display = 'none';  // Ocultar loader siempre al finalizar
+      }
+    }
+
+    async function registrarNuevoCliente() {
+      const nombres = document.getElementById('nuevoNombres').value.trim();
+      const apellidos = document.getElementById('nuevoApellidos').value.trim();
+      const direccion = document.getElementById('nuevoDireccion').value.trim();
+      const telefono = document.getElementById('nuevoTelefono').value.trim();
+
+      if (!nombres || !apellidos) {
+        alert("Nombres y apellidos son obligatorios.");
+        return;
+      }
+
+      const datos = new FormData();
+      datos.append('nombres', nombres);
+      datos.append('apellidos', apellidos);
+      datos.append('direccion', direccion);
+      datos.append('telefono', telefono);
+
+      try {
+        const res = await fetch('registrar_cliente.php', {
+          method: 'POST',
+          body: datos
+        });
+
+        const respuesta = await res.json();
+
+        if (respuesta.error) {
+          alert("Error: " + respuesta.error);
+          return;
+        }
+
+        alert("Cliente registrado exitosamente.");
+
+        // Actualizar select con nuevo cliente y seleccionar
+        const lista = document.getElementById('clienteLista');
+        lista.innerHTML = '';
+        const option = document.createElement('option');
+        option.value = respuesta.id_cliente;
+        option.textContent = `${nombres} ${apellidos}`;
+        lista.appendChild(option);
+        lista.style.display = 'inline-block';
+
+        // Ocultar formulario nuevo cliente
+        document.getElementById('nuevoClienteDiv').style.display = 'none';
+
+        // Seleccionar cliente
+        lista.value = respuesta.id_cliente;
+
+      } catch (err) {
+        alert("Error al registrar cliente: " + err.message);
+      }
+    }
+  </script>
+
+</body>
+</html>

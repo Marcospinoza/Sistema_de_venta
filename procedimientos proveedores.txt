@@ -1,0 +1,53 @@
+DELIMITER $$
+
+-- Insertar proveedor
+CREATE PROCEDURE sp_insertar_proveedor(
+  IN p_razonsocial VARCHAR(50),
+  IN p_direccion VARCHAR(50),
+  IN p_telefono VARCHAR(50)
+)
+BEGIN
+  INSERT INTO proveedores (razonsocial, direccion, telefono)
+  VALUES (p_razonsocial, p_direccion, p_telefono);
+END$$
+
+-- Listar proveedores
+CREATE PROCEDURE sp_listar_proveedores()
+BEGIN
+  SELECT * FROM proveedores;
+END$$
+
+-- Obtener proveedor por ID
+CREATE PROCEDURE sp_obtener_proveedor(
+  IN p_id_proveedor INT
+)
+BEGIN
+  SELECT * FROM proveedores
+  WHERE id_proveedor = p_id_proveedor;
+END$$
+
+-- Actualizar proveedor
+CREATE PROCEDURE sp_actualizar_proveedor(
+  IN p_id_proveedor INT,
+  IN p_razonsocial VARCHAR(50),
+  IN p_direccion VARCHAR(50),
+  IN p_telefono VARCHAR(50)
+)
+BEGIN
+  UPDATE proveedores
+  SET razonsocial = p_razonsocial,
+      direccion = p_direccion,
+      telefono = p_telefono
+  WHERE id_proveedor = p_id_proveedor;
+END$$
+
+-- Eliminar proveedor
+CREATE PROCEDURE sp_eliminar_proveedor(
+  IN p_id_proveedor INT
+)
+BEGIN
+  DELETE FROM proveedores
+  WHERE id_proveedor = p_id_proveedor;
+END$$
+
+DELIMITER ;

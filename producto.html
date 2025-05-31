@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CRUD Productos</title>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 30px;
+    }
+
+    #alerta {
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      padding: 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+    .alerta.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .alerta.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    form#formProducto {
+      max-width: 600px;
+      margin: 0 auto 40px auto;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    form#formProducto input[type="text"],
+    form#formProducto input[type="number"],
+    form#formProducto select {
+      padding: 12px 15px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s ease;
+      width: 100%;
+    }
+    form#formProducto input[type="text"]:focus,
+    form#formProducto input[type="number"]:focus,
+    form#formProducto select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+
+    form#formProducto button[type="submit"] {
+      grid-column: 1 / -1;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 14px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    form#formProducto button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    #productos {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+      gap: 20px;
+    }
+
+    .producto {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 3px 6px rgb(0 0 0 / 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .producto strong {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      color: #222;
+    }
+
+    .producto p {
+      margin: 6px 0;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .producto .info-line {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    .producto .botones {
+      margin-top: auto;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .producto button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .producto button:hover {
+      background-color: #0056b3;
+    }
+    .producto button.eliminar {
+      background-color: #dc3545;
+    }
+    .producto button.eliminar:hover {
+      background-color: #b02a37;
+    }
+
+    #btnDashboard {
+      max-width: 600px;
+      margin: 20px auto 40px auto;
+      display: block;
+      text-align: center;
+    }
+    #btnDashboard button {
+      background-color: #28a745;
+      border: none;
+      color: white;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #btnDashboard button:hover {
+      background-color: #1e7e34;
+    }
+
+    @media (max-width: 650px) {
+      form#formProducto {
+        grid-template-columns: 1fr;
+      }
+      .producto {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>CRUD de Productos</h1>
+
+<div id="alerta" class="alerta"></div>
+
+<div id="btnDashboard">
+  <button onclick="window.location.href='dashboard.php'">← Volver al Dashboard</button>
+</div>
+
+<h3>Formulario de Producto</h3>
+<form id="formProducto">
+  <input type="hidden" id="id_producto" />
+  <input type="text" id="descripcion" placeholder="Descripción" required />
+  <input type="number" id="precio" placeholder="Precio" step="0.01" required />
+  <input type="number" id="stock" placeholder="Stock" required />
+  <select id="id_categoria"></select>
+  <select id="id_proveedor"></select>
+  <button type="submit">Guardar</button>
+</form>
+
+<h3>Lista de Productos</h3>
+<div id="productos"></div>
+
+<script>
+  function mostrarAlerta(mensaje, tipo = 'success') {
+    const alerta = document.getElementById('alerta');
+    alerta.textContent = mensaje;
+    alerta.className = `alerta ${tipo}`;
+    alerta.style.display = 'block';
+    setTimeout(() => alerta.style.display = 'none', 3000);
+  }
+
+  async function cargarCategorias() {
+    const res = await fetch('listar_categorias.php');
+    const data = await res.json();
+    const select = document.getElementById('id_categoria');
+    select.innerHTML = '<option value="" disabled selected>Seleccione Categoría</option>';
+    data.forEach(c => {
+      select.innerHTML += `<option value="${c.id_categoria}">${c.descripcion}</option>`;
+    });
+  }
+
+  async function cargarProveedores() {
+    const res = await fetch('listar_proveedores.php');
+    const data = await res.json();
+    const select = document.getElementById('id_proveedor');
+    select.innerHTML = '<option value="" disabled selected>Seleccione Proveedor</option>';
+    data.forEach(p => {
+      select.innerHTML += `<option value="${p.id_proveedor}">${p.razonsocial}</option>`;
+    });
+  }
+
+  async function cargarProductos() {
+    const res = await fetch('listar_productos.php');
+    const data = await res.json();
+    const contenedor = document.getElementById('productos');
+    contenedor.innerHTML = '';
+    data.forEach(p => {
+      contenedor.innerHTML += `
+        <div class="producto">
+          <strong>${p.descripcion}</strong>
+          <p class="info-line">Precio: S/. ${parseFloat(p.precio).toFixed(2)} | Stock: ${p.stock}</p>
+          <p class="info-line">Categoría: ${p.categoria} | Proveedor: ${p.proveedor}</p>
+          <div class="botones">
+            <button onclick="editar(${p.id_producto})">Editar</button>
+            <button class="eliminar" onclick="eliminar(${p.id_producto})">Eliminar</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  document.getElementById('formProducto').addEventListener('submit', async e => {
+    e.preventDefault();
+    const id = document.getElementById('id_producto').value;
+    const datos = new FormData();
+    datos.append('descripcion', document.getElementById('descripcion').value.trim());
+    datos.append('precio', document.getElementById('precio').value);
+    datos.append('stock', document.getElementById('stock').value);
+    datos.append('id_categoria', document.getElementById('id_categoria').value);
+    datos.append('id_proveedor', document.getElementById('id_proveedor').value);
+
+    let url = 'crear_producto.php';
+    if (id) {
+      datos.append('id_producto', id);
+      url = 'actualizar_producto.php';
+    }
+
+    try {
+      const res = await fetch(url, { method: 'POST', body: datos });
+      const json = await res.json();
+
+      if (json.success) {
+        mostrarAlerta(json.mensaje);
+        e.target.reset();
+        document.getElementById('id_producto').value = '';
+        cargarProductos();
+      } else {
+        mostrarAlerta(json.mensaje, 'error');
+      }
+    } catch (error) {
+      mostrarAlerta('Error en la solicitud.', 'error');
+    }
+  });
+
+  async function editar(id) {
+    const res = await fetch('obtener_producto.php?id=' + id);
+    const p = await res.json();
+    document.getElementById('id_producto').value = p.id_producto;
+    document.getElementById('descripcion').value = p.descripcion;
+    document.getElementById('precio').value = p.precio;
+    document.getElementById('stock').value = p.stock;
+    document.getElementById('id_categoria').value = p.id_categoria;
+    document.getElementById('id_proveedor').value = p.id_proveedor;
+  }
+
+  async function eliminar(id) {
+    if (confirm("¿Seguro que deseas eliminar este producto?")) {
+      const res = await fetch('eliminar_producto.php?id=' + id);
+      const json = await res.json();
+      if (json.success) {
+        mostrarAlerta(json.mensaje);
+        cargarProductos();
+      } else {
+        mostrarAlerta(json.mensaje, 'error');
+      }
+    }
+  }
+
+  // Carga inicial
+  cargarCategorias();
+  cargarProveedores();
+  cargarProductos();
+</script>
+
+</body>
+</html>

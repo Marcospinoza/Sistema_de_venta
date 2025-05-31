@@ -1,0 +1,66 @@
+DELIMITER $$
+
+-- Registrar una venta nueva y devolver id_venta
+CREATE PROCEDURE sp_registrar_venta(
+  IN p_id_cliente INT,
+  OUT p_id_venta INT
+)
+BEGIN
+  INSERT INTO ventas(fecha, id_cliente) VALUES (NOW(), p_id_cliente);
+  SET p_id_venta = LAST_INSERT_ID();
+END$$
+
+-- Insertar detalle de venta y actualizar stock
+CREATE PROCEDURE sp_registrar_detalle_venta(
+  IN p_id_venta INT,
+  IN p_id_producto INT,
+  IN p_cantidad INT
+)
+BEGIN
+  DECLARE v_stock INT;
+
+  SELECT stock INTO v_stock FROM productos WHERE id_producto = p_id_producto;
+
+  IF v_stock < p_cantidad THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Stock insuficiente';
+  ELSE
+    INSERT INTO detalle_ventas(id_venta, id_producto, cantidad)
+    VALUES(p_id_venta, p_id_producto, p_cantidad);
+
+    UPDATE productos SET stock = stock - p_cantidad WHERE id_producto = p_id_producto;
+  END IF;
+END$$
+
+-- Obtener factura de venta (datos de venta, cliente, productos, totales)
+CREATE PROCEDURE sp_obtener_factura_venta(
+  IN p_id_venta INT
+)
+BEGIN
+  SELECT v.id_venta, v.fecha, c.nombres, c.apellidos, c.direccion, c.telefono
+  FROM ventas v
+  JOIN clientes c ON v.id_cliente = c.id_cliente
+  WHERE v.id_venta = p_id_venta;
+
+  SELECT p.descripcion, dv.cantidad, p.precio, (dv.cantidad * p.precio) AS subtotal
+  FROM detalle_ventas dv
+  JOIN productos p ON dv.id_producto = p.id_producto
+  WHERE dv.id_venta = p_id_venta;
+
+  SELECT SUM(dv.cantidad * p.precio) AS total
+  FROM detalle_ventas dv
+  JOIN productos p ON dv.id_producto = p.id_producto
+  WHERE dv.id_venta = p_id_venta;
+END$$
+
+CREATE PROCEDURE sp_buscar_clientes(
+  IN p_termino VARCHAR(100)
+)
+BEGIN
+  SELECT * FROM clientes
+  WHERE nombres LIKE CONCAT('%', p_termino, '%')
+     OR apellidos LIKE CONCAT('%', p_termino, '%');
+END$$
+
+
+
+

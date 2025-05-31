@@ -1,0 +1,72 @@
+DELIMITER $$
+
+CREATE PROCEDURE sp_insertar_producto(
+  IN p_descripcion VARCHAR(50),
+  IN p_precio DECIMAL(18,2),
+  IN p_stock INT,
+  IN p_id_categoria INT,
+  IN p_id_proveedor INT
+)
+BEGIN
+  INSERT INTO productos (descripcion, precio, stock, id_categoria, id_proveedor)
+  VALUES (p_descripcion, p_precio, p_stock, p_id_categoria, p_id_proveedor);
+END$$
+
+CREATE PROCEDURE sp_listar_productos()
+BEGIN
+  SELECT 
+    p.id_producto,
+    p.descripcion,
+    p.precio,
+    p.stock,
+    c.descripcion AS categoria,
+    pr.razonsocial AS proveedor,
+    p.id_categoria,
+    p.id_proveedor
+  FROM productos p
+  INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+  INNER JOIN proveedores pr ON p.id_proveedor = pr.id_proveedor;
+END$$
+
+CREATE PROCEDURE sp_actualizar_producto(
+  IN p_id_producto INT,
+  IN p_descripcion VARCHAR(50),
+  IN p_precio DECIMAL(18,2),
+  IN p_stock INT,
+  IN p_id_categoria INT,
+  IN p_id_proveedor INT
+)
+BEGIN
+  UPDATE productos
+  SET descripcion = p_descripcion,
+      precio = p_precio,
+      stock = p_stock,
+      id_categoria = p_id_categoria,
+      id_proveedor = p_id_proveedor
+  WHERE id_producto = p_id_producto;
+END$$
+
+CREATE PROCEDURE sp_eliminar_producto(
+  IN p_id_producto INT
+)
+BEGIN
+  DELETE FROM productos
+  WHERE id_producto = p_id_producto;
+END$$
+
+CREATE PROCEDURE sp_obtener_producto(
+  IN p_id_producto INT
+)
+BEGIN
+  SELECT 
+    id_producto,
+    descripcion,
+    precio,
+    stock,
+    id_categoria,
+    id_proveedor
+  FROM productos
+  WHERE id_producto = p_id_producto;
+END$$
+
+DELIMITER ;

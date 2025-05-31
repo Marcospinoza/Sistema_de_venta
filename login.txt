@@ -1,0 +1,8 @@
+DELIMITER //
+CREATE PROCEDURE sp_obtener_usuario_por_nombre(IN p_usuario VARCHAR(50))
+BEGIN
+  SELECT id_usuario, usuario, password, rol
+  FROM usuarios
+  WHERE usuario = p_usuario;
+END //
+DELIMITER ;
